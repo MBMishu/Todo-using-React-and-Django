@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>To Do App</title>
+    <!-- bootstrap css -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous" />
+    <link href="https://fonts.googleapis.com/css?family=Montserrat&display=swap" rel="stylesheet" />
+    <style>
+        body {
+            background: rgb(54, 217, 182);
+            background: linear-gradient( 90deg, rgba(54, 217, 182, 1) 0%, rgba(32, 152, 126, 1) 43%, rgba(0, 212, 255, 1) 100%);
+        }
+        
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        p,
+        span,
+        strike {
+            font-family: "Montserrat", sans-serif;
+        }
+        
+        #task-container {
+            max-width: 600px;
+            margin: 0 auto;
+            box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+            background-color: #fff;
+            margin-top: 100px;
+            margin-bottom: 100px;
+            justify-content: space-around;
+            align-items: flex-start;
+        }
+        
+        #form-wrapper {
+            position: -webkit-sticky;
+            position: sticky;
+            top: 0rem;
+            border-bottom: 1px solid #e9e9e9;
+            background-color: #fff;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+            padding: 40px;
+        }
+        
+        #submit {
+            background-color: #36d9b6;
+            border-radius: 0;
+            border: 0;
+            color: #fff;
+        }
+        
+        .flex-wrapper {
+            display: flex;
+        }
+        
+        .task-wrapper {
+            margin: 5px;
+            padding: 5px;
+            padding: 20px;
+            cursor: pointer;
+            border-bottom: 1px solid #e9e9e9;
+            color: #686868;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div id="task-container">
+            <div id="form-wrapper">
+                <form id="form">
+                    {% csrf_token %}
+                    <div class="flex-wrapper">
+                        <div style="flex: 6">
+                            <input id="title" class="form-control" type="text" name="title" placeholder="Add task" />
+                        </div>
+                        <div style="flex: 1">
+                            <input id="submit" class="btn" type="submit" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div id="list-wrapper"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js" integrity="sha512-0QbL0ph8Tc8g5bLhfVzSqxe9GERORsKhIn1IrpxDAgUsbBGz/V7iSav2zzW325XGd1OMLdL4UiqRJj702IeqnQ==" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+    <script>
+        var activeItem = null;
+        var list_snapshot = [];
+        buildlist();
+
+        function buildlist() {
+            var wrapper = document.getElementById("list-wrapper");
+            // wrapper.innerHTML = ''
+
+            var url = "http://127.0.0.1:8000/api/task-list/";
+
+            fetch(url)
+                .then((response) => {
+                    return response.json();
+                })
+                .then((data) => {
+                    console.log("data:", data);
+
+                    var list = data.results;
+
+                    for (var i in list) {
+                        try {
+                            document.getElementById(`data-row-${i}`).remove();
+                        } catch (err) {}
+
+                        var title = `<span class="title">
+								${list[i].title}
+                            </span>`;
+                        if (list[i].task_completed == true) {
+                            var title = `<strike class="title">
+								${list[i].title}
+                            </strike>`;
+                        }
+                        var item = `
+						<div id="data-row-${i}" class="task-wrapper flex-wrapper">
+							<div style="flex:7">
+                                ${title}
+							</div>
+							<div style="flex:1">
+								<button class="btn btn-sm btn-outline-info edit">Edit </button>
+							</div>
+							<div style="flex:1">
+								<button class="btn btn-sm btn-outline-dark delete">-</button>
+							</div>
+						</div>
+					`;
+                        wrapper.innerHTML += item;
+                    }
+
+                    if (list_snapshot.length > list.length) {
+                        for (var i = list.length; i < list_snapshot.length; i++) {
+                            document.getElementById(`data-row-${i}`).remove();
+                        }
+                    }
+                    list_snapshot = list;
+
+                    for (var i in list) {
+                        var editBtn = document.getElementsByClassName("edit")[i];
+                        var deleteBtn = document.getElementsByClassName("delete")[i];
+                        var titleBtn = document.getElementsByClassName("title")[i];
+
+                        editBtn.addEventListener(
+                            "click",
+                            (function(item) {
+                                return function() {
+                                    editItem(item);
+                                };
+                            })(list[i])
+                        );
+
+                        deleteBtn.addEventListener(
+                            "click",
+                            (function(item) {
+                                return function() {
+                                    deleteItem(item);
+                                };
+                            })(list[i])
+                        );
+
+                        titleBtn.addEventListener(
+                            "click",
+                            (function(item) {
+                                return function() {
+                                    strikeUnstrike(item);
+                                };
+                            })(list[i])
+                        );
+                    }
+                });
+        }
+
+        var form = document.getElementById("form");
+        var csrf_token = form.getElementsByTagName("input")[0].value;
+
+        form.addEventListener("submit", function(e) {
+            e.preventDefault();
+            var title = form.title.value;
+            console.log("form submitted", title);
+
+            var url = "http://127.0.0.1:8000/api/task-create/";
+
+            if (activeItem != null) {
+                var url = `http://127.0.0.1:8000/api/task-update/${activeItem.id}/`;
+                activeItem = null;
+            }
+
+            fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrf_token,
+                },
+                body: JSON.stringify({
+                    title: title,
+                }),
+            }).then((response) => {
+                buildlist();
+                form.reset();
+            });
+        });
+
+        function editItem(item) {
+            console.log(" edit item", item);
+            activeItem = item;
+            form.title.value = activeItem.title;
+        }
+
+        function deleteItem(item) {
+            console.log("delete item", item);
+
+            var url = `http://127.0.0.1:8000/api/task-delete/${item.id}/`;
+            fetch(url, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrf_token,
+                },
+            }).then((response) => {
+                buildlist();
+            });
+        }
+
+        function strikeUnstrike(item) {
+            console.log("Strike clicked", item);
+
+            item.task_completed = !item.task_completed;
+
+            var url = `http://127.0.0.1:8000/api/task-update/${item.id}/`;
+
+            fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrf_token,
+                },
+                body: JSON.stringify({
+                    title: item.title,
+                    task_completed: item.task_completed,
+                }),
+            }).then((response) => {
+                buildlist();
+            });
+        }
+    </script>
+</body>
+
+</html>
