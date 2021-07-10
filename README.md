@@ -21,12 +21,16 @@
 &nbsp; 
 <br>
 
-<img src="https://mbmishu.github.io/Duburi-Frontend/asssets/img/home.png">
+<img src="https://github.com/MBMishu/Todo-using-React-and-Django/blob/main/dashboard.png">
 
 </td>
 </tr>
 <tr>
-&nbsp; 
+<td>
 <br>
+<img src="https://github.com/MBMishu/Todo-using-React-and-Django/blob/main/p3.png">
+</td>
+&nbsp;
+
 </tr>
 </table>
