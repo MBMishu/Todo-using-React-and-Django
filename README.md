@@ -9,7 +9,7 @@
 
 <div align="center">
 
-<a href="https://mbmishu.github.io/Duburi-Todo-web-app-using-React-and-Django/">![Duburi](https://img.shields.io/badge/Duburi-Live-9cf?style=for-the-badge)</a>
+<a href="https://todo.mbmishu.com/">![Todo](https://img.shields.io/badge/Todo-Live-9cf?style=for-the-badge)</a>
 
 </div>
 
